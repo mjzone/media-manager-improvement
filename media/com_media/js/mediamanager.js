@@ -409,6 +409,46 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],3:[function(require,module,exports){
+'use strict';
+
+var Vue = require('vue');
+Vue = 'default' in Vue ? Vue['default'] : Vue;
+
+var version = '2.1.0';
+
+var compatible = (/^2\./).test(Vue.version);
+if (!compatible) {
+  Vue.util.warn('VueFocus ' + version + ' only supports Vue 2.x, and does not support Vue ' + Vue.version);
+}
+
+var focus = {
+  inserted: function(el, binding) {
+    if (binding.value) el.focus();
+    else el.blur();
+  },
+
+  componentUpdated: function(el, binding) {
+    if (binding.modifiers.lazy) {
+      if (Boolean(binding.value) === Boolean(binding.oldValue)) {
+        return;
+      }
+    }
+
+    if (binding.value) el.focus();
+    else el.blur();
+  },
+};
+
+var mixin = {
+  directives: {
+    focus: focus,
+  },
+};
+
+exports.version = version;
+exports.focus = focus;
+exports.mixin = mixin;
+},{"vue":5}],4:[function(require,module,exports){
 var Vue // late bind
 var version
 var map = window.__VUE_HOT_MAP__ = Object.create(null)
@@ -546,7 +586,7 @@ exports.reload = tryWrap(function (id, options) {
   })
 })
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 (function (process,global){
 /*!
  * Vue.js v2.2.6
@@ -7381,7 +7421,7 @@ setTimeout(function () {
 module.exports = Vue$2;
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":2}],5:[function(require,module,exports){
+},{"_process":2}],6:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 function noop () {}
@@ -7406,7 +7446,7 @@ exports.insert = function (css) {
   }
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /**
  * vuex v2.2.1
  * (c) 2017 Evan You
@@ -8219,7 +8259,7 @@ return index;
 
 })));
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8313,6 +8353,38 @@ var Api = function () {
         }
 
         /**
+         * Upload a file
+         * @param name
+         * @param parent
+         * @param content base64 encoded string
+         * @return {Promise.<T>}
+         */
+
+    }, {
+        key: 'upload',
+        value: function upload(name, parent, content) {
+            var _this3 = this;
+
+            // Wrap the jquery call into a real promise
+            return new Promise(function (resolve, reject) {
+                var _data2;
+
+                var url = _this3._baseUrl + '&task=api.files&path=' + parent;
+                var data = (_data2 = {}, _defineProperty(_data2, _this3._csrfToken, '1'), _defineProperty(_data2, 'name', name), _defineProperty(_data2, 'content', content), _data2);
+                jQuery.ajax({
+                    url: url,
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    contentType: "application/json"
+                }).done(function (json) {
+                    return resolve(_this3._normalizeItem(json.data));
+                }).fail(function (xhr, status, error) {
+                    reject(xhr);
+                });
+            }).catch(this._handleError);
+        }
+
+        /**
          * Normalize a single item
          * @param item
          * @returns {*}
@@ -8342,17 +8414,17 @@ var Api = function () {
     }, {
         key: '_normalizeArray',
         value: function _normalizeArray(data) {
-            var _this3 = this;
+            var _this4 = this;
 
             var directories = data.filter(function (item) {
                 return item.type === 'dir';
             }).map(function (directory) {
-                return _this3._normalizeItem(directory);
+                return _this4._normalizeItem(directory);
             });
             var files = data.filter(function (item) {
                 return item.type === 'file';
             }).map(function (file) {
-                return _this3._normalizeItem(file);
+                return _this4._normalizeItem(file);
             });
 
             return {
@@ -8393,7 +8465,7 @@ var Api = function () {
 
 var api = exports.api = new Api();
 
-},{"path":1}],8:[function(require,module,exports){
+},{"path":1}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8457,7 +8529,7 @@ var Event = function () {
 
 exports.default = Event;
 
-},{"vue":4}],9:[function(require,module,exports){
+},{"vue":5}],10:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -8510,19 +8582,19 @@ exports.default = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-container row no-gutters",style:({minHeight: _vm.fullHeight})},[_c('div',{staticClass:"media-sidebar col-md-2 hidden-sm-down"},[_c('media-tree',{attrs:{"root":'/'}})],1),_vm._v(" "),_c('div',{staticClass:"media-main col-md-10"},[_c('media-toolbar'),_vm._v(" "),_c('media-browser'),_vm._v(" "),_c('media-infobar')],1),_vm._v(" "),_c('media-create-folder-modal')],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-container row",style:({minHeight: _vm.fullHeight})},[_c('div',{staticClass:"media-sidebar col-md-2 hidden-sm-down"},[_c('media-tree',{attrs:{"root":'/'}})],1),_vm._v(" "),_c('div',{staticClass:"col-md-10"},[_c('div',{staticClass:"media-main"},[_c('media-toolbar'),_vm._v(" "),_c('media-browser'),_vm._v(" "),_c('media-infobar')],1)]),_vm._v(" "),_c('media-upload'),_vm._v(" "),_c('media-create-folder-modal')],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-4b37c38f", __vue__options__)
+    hotAPI.createRecord("data-v-02393475", __vue__options__)
   } else {
-    hotAPI.reload("data-v-4b37c38f", __vue__options__)
+    hotAPI.reload("data-v-02393475", __vue__options__)
   }
 })()}
-},{"./../store/mutation-types":27,"vue":4,"vue-hot-reload-api":3}],10:[function(require,module,exports){
+},{"./../store/mutation-types":28,"vue":5,"vue-hot-reload-api":4}],11:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -8568,12 +8640,12 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-a0d88b06", __vue__options__)
+    hotAPI.createRecord("data-v-5a2cfde3", __vue__options__)
   } else {
-    hotAPI.reload("data-v-a0d88b06", __vue__options__)
+    hotAPI.reload("data-v-5a2cfde3", __vue__options__)
   }
 })()}
-},{"vue":4,"vue-hot-reload-api":3}],11:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":4}],12:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -8622,19 +8694,19 @@ exports.default = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser"},[_c('div',{ref:"browserItems",staticClass:"media-browser-items col-md-8"},_vm._l((_vm.items),function(item){return _c('media-browser-item',{attrs:{"item":item}})}))])}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser"},[_c('div',{ref:"browserItems",staticClass:"media-browser-items"},_vm._l((_vm.items),function(item){return _c('media-browser-item',{attrs:{"item":item}})}))])}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-81ab58a2", __vue__options__)
+    hotAPI.createRecord("data-v-cd88c8d6", __vue__options__)
   } else {
-    hotAPI.reload("data-v-81ab58a2", __vue__options__)
+    hotAPI.reload("data-v-cd88c8d6", __vue__options__)
   }
 })()}
-},{"./../../store/mutation-types":27,"vue":4,"vue-hot-reload-api":3}],12:[function(require,module,exports){
+},{"./../../store/mutation-types":28,"vue":5,"vue-hot-reload-api":4}],13:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -8654,19 +8726,19 @@ exports.default = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser-item-directory",on:{"dblclick":function($event){_vm.goTo(_vm.item.path)}}},[_vm._m(0),_vm._v(" "),_c('div',{staticClass:"media-browser-item-info"},[_vm._v("\n        "+_vm._s(_vm.item.name)+"\n    ")])])}
-__vue__options__.staticRenderFns = [function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser-item-preview"},[_c('span',{staticClass:"fa fa-folder"})])}]
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser-item-directory"},[_c('div',{staticClass:"media-browser-item-preview",on:{"dblclick":function($event){_vm.goTo(_vm.item.path)}}},[_vm._m(0)]),_vm._v(" "),_c('div',{staticClass:"media-browser-item-info"},[_vm._v("\n        "+_vm._s(_vm.item.name)+"\n    ")])])}
+__vue__options__.staticRenderFns = [function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"file-background"},[_c('div',{staticClass:"folder-icon d-flex justify-content-center align-items-center"},[_c('span',{staticClass:"fa fa-folder-o"})])])}]
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-5a53cd36", __vue__options__)
+    hotAPI.createRecord("data-v-3c2c1b4b", __vue__options__)
   } else {
-    hotAPI.reload("data-v-5a53cd36", __vue__options__)
+    hotAPI.reload("data-v-3c2c1b4b", __vue__options__)
   }
 })()}
-},{"vue":4,"vue-hot-reload-api":3}],13:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":4}],14:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -8682,18 +8754,18 @@ if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
 __vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser-item-file",class:{selected: _vm.isSelected}},[_vm._m(0),_vm._v(" "),_c('div',{staticClass:"media-browser-item-info"},[_vm._v(_vm._s(_vm.item.name))])])}
-__vue__options__.staticRenderFns = [function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser-item-preview"},[_c('span',{staticClass:"fa fa-file-text-o"})])}]
+__vue__options__.staticRenderFns = [function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser-item-preview"},[_c('div',{staticClass:"file-background"},[_c('div',{staticClass:"file-icon d-flex justify-content-center align-items-center"},[_c('span',{staticClass:"fa fa-file-text-o"})])])])}]
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-04e07734", __vue__options__)
+    hotAPI.createRecord("data-v-744344e4", __vue__options__)
   } else {
-    hotAPI.reload("data-v-04e07734", __vue__options__)
+    hotAPI.reload("data-v-744344e4", __vue__options__)
   }
 })()}
-},{"vue":4,"vue-hot-reload-api":3}],14:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":4}],15:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -8708,6 +8780,11 @@ exports.default = {
             var fileBaseUrl = Joomla.getOptions('com_media').fileBaseUrl || '/images';
 
             return fileBaseUrl + this.item.path;
+        },
+        openEditView: function openEditView() {
+            var fileBaseUrl = Joomla.getOptions('com_media').editViewUrl + '&path=';
+
+            window.location.href = fileBaseUrl + this.item.path;
         }
     }
 };
@@ -8715,19 +8792,19 @@ exports.default = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser-image"},[_c('div',{staticClass:"media-browser-item-preview"},[_c('div',{staticClass:"image-brackground"},[_c('div',{staticClass:"image-cropped",style:({ backgroundImage: 'url(' + _vm.itemUrl + ')' })})])]),_vm._v(" "),_c('div',{staticClass:"media-browser-item-info"},[_vm._v("\n        "+_vm._s(_vm.item.name)+"\n    ")])])}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"media-browser-image"},[_c('div',{staticClass:"media-browser-item-preview"},[_c('div',{staticClass:"image-brackground"},[_c('div',{staticClass:"image-cropped",style:({ backgroundImage: 'url(' + _vm.itemUrl + ')' }),on:{"dblclick":function($event){_vm.openEditView()}}})])]),_vm._v(" "),_c('div',{staticClass:"media-browser-item-info"},[_vm._v("\n        "+_vm._s(_vm.item.name)+" "+_vm._s(_vm.item.filetype)+"\n    ")])])}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-9828255a", __vue__options__)
+    hotAPI.createRecord("data-v-12aad239", __vue__options__)
   } else {
-    hotAPI.reload("data-v-9828255a", __vue__options__)
+    hotAPI.reload("data-v-12aad239", __vue__options__)
   }
 })()}
-},{"vue":4,"vue-hot-reload-api":3}],15:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":4}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8767,7 +8844,7 @@ exports.default = {
          * Return the correct item type component
          */
         function itemType() {
-            var imageExtensions = ['jpg', 'png', 'gif'];
+            var imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
             // Render directory items
             if (item.type === 'dir') return _directory2.default;
@@ -8828,143 +8905,7 @@ exports.default = {
     }
 };
 
-},{"./../../../store/mutation-types":27,"./directory.vue":12,"./file.vue":13,"./image.vue":14}],16:[function(require,module,exports){
-;(function(){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.default = {
-	name: 'media-dnd',
-	props: ['content']
-};
-
-
-var openFile = function openFile(f) {
-	var reader = new FileReader();
-	reader.onloadend = function (e) {
-		UploadFile(f.name, reader.result);
-	};
-	reader.readAsDataURL(f);
-};
-
-document.addEventListener('dragleave', function (e) {
-	e.stopPropagation();
-	e.preventDefault();
-	document.querySelector('.media-browser').style.borderWidth = '1px';
-	document.querySelector('.media-browser').style.borderStyle = 'solid';
-
-	return false;
-});
-
-window.UploadFile = function (name, f) {
-	var options = Joomla.getOptions('com_media', {});
-
-	var forUpload = {
-		'name': name,
-		'content': f.replace(/data:+.+base64,/, '')
-	};
-	forUpload[options.csrfToken] = 1;
-
-	var uploadPath = '';
-	var url = options.apiBaseUrl + +'&task=api.files&path=' + 'index.php?option=com_media&path=/' + uploadPath + '/' + name;
-
-	var xhr = new XMLHttpRequest();
-
-	xhr.upload.onprogress = function (e) {
-		var percentComplete = e.loaded / e.total * 100;
-		document.getElementById('progress-bar-com-media-tmp').style.width = percentComplete + '%';
-	};
-
-	var removeProgessBar = function removeProgessBar() {
-		setTimeout(function () {
-			document.querySelector('#jloader').outerHTML = "";
-			delete document.querySelector('#jloader');
-			document.querySelector('.media-browser').style.borderWidth = '1px';
-			document.querySelector('.media-browser').style.borderStyle = 'solid';
-		}, 200);
-	};
-
-	xhr.onload = function () {
-		try {
-			var resp = JSON.parse(xhr.responseText);
-		} catch (e) {
-			var resp = null;
-		}
-
-		if (resp) {
-			if (xhr.status == 200) {
-				if (resp.success == true) {
-					removeProgessBar();
-				}
-
-				if (resp.status == '1') {
-					Joomla.renderMessages({ 'success': [resp.message] }, 'true');
-					removeProgessBar();
-				}
-			}
-		} else {
-			removeProgessBar();
-		}
-	};
-
-	xhr.onerror = function () {
-		removeProgessBar();
-	};
-
-	xhr.open("POST", options.apiBaseUrl + '&task=api.files&path=' + uploadPath, true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	xhr.send(JSON.stringify(forUpload));
-};
-
-document.addEventListener('dragenter', function (e) {
-	e.stopPropagation();
-	return false;
-});
-
-document.addEventListener('dragover', function (e) {
-	e.preventDefault();
-	document.querySelector('.media-browser').style.borderStyle = 'dashed';
-	document.querySelector('.media-browser').style.borderWidth = '5px';
-
-	return false;
-});
-
-document.addEventListener('drop', function (e) {
-	e.preventDefault();
-
-	if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-		for (var i = 0, f; f = e.dataTransfer.files[i]; i++) {
-			if (f.name.toLowerCase().match(/\.(jpg|jpeg|png|gif)$/)) {
-				document.querySelector('.media-browser').insertAdjacentHTML('afterbegin', '<div id=\"jloader\">' + '   <div class=\"progress progress-success progress-striped active\" style=\"width:100%;height:30px;\">' + '       <div id=\"progress-bar-com-media-tmp\" class=\"bar\" style=\"width: 0%\"></div>' + '   </div>' + '</div>');
-				document.querySelector('.media-browser').style.borderWidth = '1px';
-				document.querySelector('.media-browser').style.borderStyle = 'solid';
-			}
-			e.preventDefault();
-			openFile(f);
-		}
-	}
-	document.querySelector('.media-browser').style.borderWidth = '1px';
-	document.querySelector('.media-browser').style.borderStyle = 'solid';
-});
-})()
-if (module.exports.__esModule) module.exports = module.exports.default
-var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
-if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c("div")}
-__vue__options__.staticRenderFns = []
-if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-70ebccea", __vue__options__)
-  } else {
-    hotAPI.reload("data-v-70ebccea", __vue__options__)
-  }
-})()}
-},{"vue":4,"vue-hot-reload-api":3}],17:[function(require,module,exports){
+},{"./../../../store/mutation-types":28,"./directory.vue":13,"./file.vue":14,"./image.vue":15}],17:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -9000,12 +8941,12 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-2c8704a9", __vue__options__)
+    hotAPI.createRecord("data-v-06984c8f", __vue__options__)
   } else {
-    hotAPI.reload("data-v-2c8704a9", __vue__options__)
+    hotAPI.reload("data-v-06984c8f", __vue__options__)
   }
 })()}
-},{"vue":4,"vue-hot-reload-api":3}],18:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":4}],18:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -9017,19 +8958,41 @@ var _mutationTypes = require('./../../store/mutation-types');
 
 var types = _interopRequireWildcard(_mutationTypes);
 
+var _vueFocus = require('vue-focus');
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 exports.default = {
     name: 'create-folder-modal',
+    directives: { focus: _vueFocus.focus },
+    data: function data() {
+        return {
+            folder: ''
+        };
+    },
+
     methods: {
+        isValid: function isValid() {
+            return this.folder;
+        },
         close: function close() {
+            this.reset();
             this.$store.commit(types.HIDE_CREATE_FOLDER_MODAL);
         },
         save: function save() {
+            if (!this.isValid()) {
+                Joomla.renderMessages({ "error": [this.translate('JLIB_FORM_FIELD_REQUIRED_VALUE')] });
+                return;
+            }
+
             this.$store.dispatch('createDirectory', {
                 name: this.folder,
                 parent: this.$store.state.selectedDirectory
             });
+
+            this.reset();
+        },
+        reset: function reset() {
             this.folder = '';
         }
     }
@@ -9038,19 +9001,19 @@ exports.default = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.$store.state.showCreateFolderModal)?_c('media-modal',{attrs:{"size":'sm'},on:{"close":function($event){_vm.close()}}},[_c('h3',{staticClass:"modal-title",slot:"header"},[_vm._v(_vm._s(_vm.translate('COM_MEDIA_CREATE_NEW_FOLDER')))]),_vm._v(" "),_c('div',{slot:"body"},[_c('form',{staticClass:"form"},[_c('div',{staticClass:"form-group"},[_c('label',{attrs:{"for":"folder"}},[_vm._v(_vm._s(_vm.translate('COM_MEDIA_FOLDER')))]),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.folder),expression:"folder"}],staticClass:"form-control",attrs:{"type":"text","id":"folder","placeholder":"Folder"},domProps:{"value":(_vm.folder)},on:{"input":function($event){if($event.target.composing){ return; }_vm.folder=$event.target.value}}})])])]),_vm._v(" "),_c('div',{slot:"footer"},[_c('button',{staticClass:"btn btn-link",on:{"click":function($event){_vm.close()}}},[_vm._v(_vm._s(_vm.translate('JCANCEL')))]),_vm._v(" "),_c('button',{staticClass:"btn btn-success",on:{"click":function($event){_vm.save()}}},[_vm._v(_vm._s(_vm.translate('JAPPLY')))])])]):_vm._e()}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.$store.state.showCreateFolderModal)?_c('media-modal',{attrs:{"size":'sm'},on:{"close":function($event){_vm.close()}}},[_c('h3',{staticClass:"modal-title",slot:"header"},[_vm._v(_vm._s(_vm.translate('COM_MEDIA_CREATE_NEW_FOLDER')))]),_vm._v(" "),_c('div',{slot:"body"},[_c('form',{staticClass:"form",attrs:{"novalidate":""},on:{"submit":function($event){$event.preventDefault();_vm.save($event)}}},[_c('div',{staticClass:"form-group"},[_c('label',{attrs:{"for":"folder"}},[_vm._v(_vm._s(_vm.translate('COM_MEDIA_FOLDER')))]),_vm._v(" "),_c('input',{directives:[{name:"focus",rawName:"v-focus",value:(true),expression:"true"},{name:"model",rawName:"v-model.trim",value:(_vm.folder),expression:"folder",modifiers:{"trim":true}}],staticClass:"form-control",attrs:{"type":"text","id":"folder","placeholder":"Folder","required":"","autocomplete":"off"},domProps:{"value":(_vm.folder)},on:{"input":[function($event){if($event.target.composing){ return; }_vm.folder=$event.target.value.trim()},function($event){_vm.folder = $event.target.value}],"blur":function($event){_vm.$forceUpdate()}}})])])]),_vm._v(" "),_c('div',{slot:"footer"},[_c('button',{staticClass:"btn btn-link",on:{"click":function($event){_vm.close()}}},[_vm._v(_vm._s(_vm.translate('JCANCEL')))]),_vm._v(" "),_c('button',{staticClass:"btn btn-success",attrs:{"disabled":!_vm.isValid()},on:{"click":function($event){_vm.save()}}},[_vm._v(_vm._s(_vm.translate('JAPPLY')))])])]):_vm._e()}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-0eac2d18", __vue__options__)
+    hotAPI.createRecord("data-v-1e731972", __vue__options__)
   } else {
-    hotAPI.reload("data-v-0eac2d18", __vue__options__)
+    hotAPI.reload("data-v-1e731972", __vue__options__)
   }
 })()}
-},{"./../../store/mutation-types":27,"vue":4,"vue-hot-reload-api":3}],19:[function(require,module,exports){
+},{"./../../store/mutation-types":28,"vue":5,"vue-focus":3,"vue-hot-reload-api":4}],19:[function(require,module,exports){
 var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("/** TODO DN extract styles **/\n.modal {\n    display: block;\n}\n\n.modal-body {\n    width: auto;\n    padding: 15px;\n}\n\n.media-modal-backdrop {\n    position: fixed;\n    z-index: 1040;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    background-color: rgba(0, 0, 0, .5);\n    display: table;\n    transition: opacity .3s ease;\n}")
 ;(function(){
 'use strict';
@@ -9113,12 +9076,12 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   module.hot.accept()
   module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-729578c6", __vue__options__)
+    hotAPI.createRecord("data-v-afa4aac0", __vue__options__)
   } else {
-    hotAPI.reload("data-v-729578c6", __vue__options__)
+    hotAPI.reload("data-v-afa4aac0", __vue__options__)
   }
 })()}
-},{"./../../store/mutation-types":27,"vue":4,"vue-hot-reload-api":3,"vueify/lib/insert-css":5}],20:[function(require,module,exports){
+},{"./../../store/mutation-types":28,"vue":5,"vue-hot-reload-api":4,"vueify/lib/insert-css":6}],20:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -9139,12 +9102,12 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-518fce55", __vue__options__)
+    hotAPI.createRecord("data-v-2ba1163b", __vue__options__)
   } else {
-    hotAPI.reload("data-v-518fce55", __vue__options__)
+    hotAPI.reload("data-v-2ba1163b", __vue__options__)
   }
 })()}
-},{"vue":4,"vue-hot-reload-api":3}],21:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":4}],21:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -9161,17 +9124,14 @@ exports.default = {
         isOpen: function isOpen() {
             return this.$store.state.selectedDirectory.includes(this.item.path);
         },
-        level: function level() {
-            return this.item.path.split('/').length - 1;
-        },
         hasChildren: function hasChildren() {
             return this.item.directories.length > 0;
         },
         iconClass: function iconClass() {
             return {
                 fa: true,
-                'fa-folder': !this.isOpen,
-                'fa-folder-open': this.isOpen
+                'fa-folder-o': !this.isOpen,
+                'fa-folder-open-o': this.isOpen
             };
         }
     },
@@ -9185,19 +9145,19 @@ exports.default = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"media-tree-item",class:{active: _vm.isActive}},[_c('a',{style:({'paddingLeft': 15 * _vm.level + 'px'}),on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggleItem()}}},[_c('span',{staticClass:"item-icon"},[_c('span',{class:_vm.iconClass})]),_vm._v(" "),_c('span',{staticClass:"item-name"},[_vm._v(_vm._s(_vm.item.name))])]),_vm._v(" "),_c('transition',{attrs:{"name":"slide-fade"}},[(_vm.hasChildren)?_c('media-tree',{directives:[{name:"show",rawName:"v-show",value:(_vm.isOpen),expression:"isOpen"}],attrs:{"root":_vm.item.path}}):_vm._e()],1)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"media-tree-item",class:{active: _vm.isActive}},[_c('a',{on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggleItem()}}},[_c('span',{staticClass:"item-icon"},[_c('span',{class:_vm.iconClass})]),_vm._v(" "),_c('span',{staticClass:"item-name"},[_vm._v(_vm._s(_vm.item.name))])]),_vm._v(" "),_c('transition',{attrs:{"name":"slide-fade"}},[(_vm.hasChildren)?_c('media-tree',{directives:[{name:"show",rawName:"v-show",value:(_vm.isOpen),expression:"isOpen"}],attrs:{"root":_vm.item.path}}):_vm._e()],1)],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-5929c252", __vue__options__)
+    hotAPI.createRecord("data-v-4c306eb8", __vue__options__)
   } else {
-    hotAPI.reload("data-v-5929c252", __vue__options__)
+    hotAPI.reload("data-v-4c306eb8", __vue__options__)
   }
 })()}
-},{"vue":4,"vue-hot-reload-api":3}],22:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":4}],22:[function(require,module,exports){
 ;(function(){
 'use strict';
 
@@ -9213,6 +9173,8 @@ exports.default = {
 
             return this.$store.state.directories.filter(function (directory) {
                 return directory.directory === _this.root;
+            }).sort(function (a, b) {
+                return a.name.toUpperCase() < b.name.toUpperCase() ? -1 : 1;
             });
         }
     }
@@ -9228,12 +9190,117 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-65997d5d", __vue__options__)
+    hotAPI.createRecord("data-v-58a029c3", __vue__options__)
   } else {
-    hotAPI.reload("data-v-65997d5d", __vue__options__)
+    hotAPI.reload("data-v-58a029c3", __vue__options__)
   }
 })()}
-},{"vue":4,"vue-hot-reload-api":3}],23:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":4}],23:[function(require,module,exports){
+;(function(){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = {
+    name: 'media-upload',
+    props: {
+        accept: {
+            type: String
+        },
+        extensions: {
+            default: function _default() {
+                return [];
+            }
+        },
+        name: {
+            type: String,
+            default: 'file'
+        },
+        multiple: {
+            type: Boolean,
+            default: true
+        }
+    },
+    methods: {
+        chooseFiles: function chooseFiles() {
+            this.$refs['fileInput'].click();
+        },
+        upload: function upload(e) {
+            var _this = this;
+
+            e.preventDefault();
+            var files = e.target.files;
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                var _loop = function _loop() {
+                    var file = _step.value;
+
+                    var reader = new FileReader();
+
+                    reader.onload = function (progressEvent) {
+                        var result = progressEvent.target.result,
+                            splitIndex = result.indexOf('base64') + 7,
+                            content = result.slice(splitIndex, result.length);
+
+                        _this.$store.dispatch('uploadFile', {
+                            name: file.name,
+                            parent: _this.$store.state.selectedDirectory,
+                            content: content
+                        });
+                    };
+
+                    reader.readAsDataURL(file);
+                };
+
+                for (var _iterator = files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    _loop();
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    },
+    created: function created() {
+        var _this2 = this;
+
+        MediaManager.Event.listen('onClickUpload', function () {
+            return _this2.chooseFiles();
+        });
+    }
+};
+})()
+if (module.exports.__esModule) module.exports = module.exports.default
+var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
+if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('input',{ref:"fileInput",staticClass:"hidden",attrs:{"type":"file","name":_vm.name,"multiple":_vm.multiple,"accept":_vm.accept},on:{"change":_vm.upload}})}
+__vue__options__.staticRenderFns = []
+if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-f6c333ba", __vue__options__)
+  } else {
+    hotAPI.reload("data-v-f6c333ba", __vue__options__)
+  }
+})()}
+},{"vue":5,"vue-hot-reload-api":4}],24:[function(require,module,exports){
 "use strict";
 
 var _vue = require("vue");
@@ -9284,9 +9351,9 @@ var _infobar = require("./components/infobar/infobar.vue");
 
 var _infobar2 = _interopRequireDefault(_infobar);
 
-var _dnd = require("./components/draganddrop/dnd.vue");
+var _upload = require("./components/upload/upload.vue");
 
-var _dnd2 = _interopRequireDefault(_dnd);
+var _upload2 = _interopRequireDefault(_upload);
 
 var _translate = require("./plugins/translate");
 
@@ -9311,6 +9378,7 @@ _vue2.default.component('media-browser-item', _item4.default);
 _vue2.default.component('media-modal', _modal2.default);
 _vue2.default.component('media-create-folder-modal', _createFolderModal2.default);
 _vue2.default.component('media-infobar', _infobar2.default);
+_vue2.default.component('media-upload', _upload2.default);
 
 // Register MediaManager namespace
 window.MediaManager = window.MediaManager || {};
@@ -9328,7 +9396,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
     });
 });
 
-},{"./app/Event":8,"./components/app.vue":9,"./components/breadcrumb/breadcrumb.vue":10,"./components/browser/browser.vue":11,"./components/browser/items/item":15,"./components/draganddrop/dnd.vue":16,"./components/infobar/infobar.vue":17,"./components/modals/create-folder-modal.vue":18,"./components/modals/modal.vue":19,"./components/toolbar/toolbar.vue":20,"./components/tree/item.vue":21,"./components/tree/tree.vue":22,"./plugins/translate":24,"./store/store":30,"vue":4}],24:[function(require,module,exports){
+},{"./app/Event":9,"./components/app.vue":10,"./components/breadcrumb/breadcrumb.vue":11,"./components/browser/browser.vue":12,"./components/browser/items/item":16,"./components/infobar/infobar.vue":17,"./components/modals/create-folder-modal.vue":18,"./components/modals/modal.vue":19,"./components/toolbar/toolbar.vue":20,"./components/tree/item.vue":21,"./components/tree/tree.vue":22,"./components/upload/upload.vue":23,"./plugins/translate":25,"./store/store":31,"vue":5}],25:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9352,13 +9420,13 @@ Translate.install = function (Vue, options) {
 
 exports.default = Translate;
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.createDirectory = exports.getContents = undefined;
+exports.uploadFile = exports.createDirectory = exports.getContents = undefined;
 
 var _Api = require("../app/Api");
 
@@ -9407,7 +9475,23 @@ var createDirectory = exports.createDirectory = function createDirectory(_ref2, 
     });
 };
 
-},{"../app/Api":7,"./mutation-types":27}],26:[function(require,module,exports){
+/**
+ * Create a new folder
+ * @param commit
+ * @param payload object with the new folder name and its parent directory
+ */
+var uploadFile = exports.uploadFile = function uploadFile(_ref3, payload) {
+    var commit = _ref3.commit;
+
+    _Api.api.upload(payload.name, payload.parent, payload.content).then(function (file) {
+        commit(types.UPLOAD_SUCCESS, file);
+    }).catch(function (error) {
+        // TODO error handling
+        console.log("error", error);
+    });
+};
+
+},{"../app/Api":8,"./mutation-types":28}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9455,7 +9539,7 @@ var getSelectedDirectoryFiles = exports.getSelectedDirectoryFiles = function get
   });
 };
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9468,12 +9552,13 @@ var UNSELECT_ALL_BROWSER_ITEMS = exports.UNSELECT_ALL_BROWSER_ITEMS = 'UNSELECT_
 // Api handlers
 var LOAD_CONTENTS_SUCCESS = exports.LOAD_CONTENTS_SUCCESS = 'LOAD_CONTENTS_SUCCESS';
 var CREATE_DIRECTORY_SUCCESS = exports.CREATE_DIRECTORY_SUCCESS = 'CREATE_DIRECTORY_SUCCESS';
+var UPLOAD_SUCCESS = exports.UPLOAD_SUCCESS = 'UPLOAD_SUCCESS';
 
 // Create folder modal
 var SHOW_CREATE_FOLDER_MODAL = exports.SHOW_CREATE_FOLDER_MODAL = 'SHOW_CREATE_FOLDER_MODAL';
 var HIDE_CREATE_FOLDER_MODAL = exports.HIDE_CREATE_FOLDER_MODAL = 'HIDE_CREATE_FOLDER_MODAL';
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9522,7 +9607,7 @@ exports.default = (_types$SELECT_DIRECTO = {}, _defineProperty(_types$SELECT_DIR
         });
         var parentDirectoryIndex = state.directories.indexOf(parentDirectory);
 
-        // Add the new directories to the directories
+        // Add the new directories to the directories array
         (_state$directories = state.directories).push.apply(_state$directories, _toConsumableArray(newDirectories));
 
         // Update the relation to the parent directory
@@ -9543,12 +9628,33 @@ exports.default = (_types$SELECT_DIRECTO = {}, _defineProperty(_types$SELECT_DIR
         });
         var _parentDirectoryIndex = state.directories.indexOf(_parentDirectory);
 
-        // Add the new files to the files
+        // Add the new files to the files array
         (_state$files = state.files).push.apply(_state$files, _toConsumableArray(newFiles));
 
         // Update the relation to the parent directory
         state.directories.splice(_parentDirectoryIndex, 1, Object.assign({}, _parentDirectory, {
             files: [].concat(_toConsumableArray(_parentDirectory.files), _toConsumableArray(newFileIds))
+        }));
+    }
+}), _defineProperty(_types$SELECT_DIRECTO, types.UPLOAD_SUCCESS, function (state, payload) {
+    var file = payload;
+    var isNew = !state.files.some(function (existing) {
+        return existing.path === file.path;
+    });
+
+    // TODO handle file_exists
+    if (isNew) {
+        var parentDirectory = state.directories.find(function (existing) {
+            return existing.path === file.directory;
+        });
+        var parentDirectoryIndex = state.directories.indexOf(parentDirectory);
+
+        // Add the new file to the files array
+        state.files.push(file);
+
+        // Update the relation to the parent directory
+        state.directories.splice(parentDirectoryIndex, 1, Object.assign({}, parentDirectory, {
+            files: [].concat(_toConsumableArray(parentDirectory.files), [file.path])
         }));
     }
 }), _defineProperty(_types$SELECT_DIRECTO, types.CREATE_DIRECTORY_SUCCESS, function (state, payload) {
@@ -9574,7 +9680,6 @@ exports.default = (_types$SELECT_DIRECTO = {}, _defineProperty(_types$SELECT_DIR
     }
 }), _defineProperty(_types$SELECT_DIRECTO, types.SELECT_BROWSER_ITEM, function (state, payload) {
     state.selectedItems.push(payload);
-    var selectedItemIndex = state.selectedItems.indexOf(payload);
 }), _defineProperty(_types$SELECT_DIRECTO, types.UNSELECT_ALL_BROWSER_ITEMS, function (state, payload) {
     state.selectedItems = [];
 }), _defineProperty(_types$SELECT_DIRECTO, types.SHOW_CREATE_FOLDER_MODAL, function (state) {
@@ -9583,7 +9688,7 @@ exports.default = (_types$SELECT_DIRECTO = {}, _defineProperty(_types$SELECT_DIR
     state.showCreateFolderModal = false;
 }), _types$SELECT_DIRECTO);
 
-},{"./mutation-types":27}],29:[function(require,module,exports){
+},{"./mutation-types":28}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9598,7 +9703,7 @@ exports.default = {
     selectedItems: []
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9645,4 +9750,4 @@ exports.default = new _vuex2.default.Store({
     strict: true
 });
 
-},{"./actions":25,"./getters":26,"./mutations":28,"./state":29,"vue":4,"vuex":6}]},{},[23]);
+},{"./actions":26,"./getters":27,"./mutations":29,"./state":30,"vue":5,"vuex":7}]},{},[24]);

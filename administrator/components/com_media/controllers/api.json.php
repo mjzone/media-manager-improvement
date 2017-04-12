@@ -126,13 +126,13 @@ class MediaControllerApi extends Controller
 				case 'put':
 					$content      = $this->input->json;
 					$name         = basename($path);
-					$mediaContent = base64_decode($content->get('content'));
+					$mediaContent = base64_decode($content->get('content', '', 'raw'));
 
 					$this->checkContent($name, $mediaContent);
 
 					$this->getModel()->updateFile($name, str_replace($name, '', $path), $mediaContent);
 
-					$data = $this->getModel()->getFile($path . '/' . $name);
+					$data = $this->getModel()->getFile($path);
 					break;
 				default:
 					throw new BadMethodCallException('Method not supported yet!');
@@ -217,7 +217,7 @@ class MediaControllerApi extends Controller
 
 		$params = JComponentHelper::getParams('com_media');
 
-		$helper = new JHelperMedia();
+		$helper = new JHelperMedia;
 		$serverlength = $this->input->server->get('CONTENT_LENGTH');
 
 		if ($serverlength > ($params->get('upload_maxsize', 0) * 1024 * 1024)
@@ -236,7 +236,7 @@ class MediaControllerApi extends Controller
 			throw new Exception(JText::_('JLIB_MEDIA_ERROR_UPLOAD_INPUT'));
 		}
 
-		if (!$helper->canUpload(array('name' => $name, 'size' => sizeof($mediaContent), 'tmp_name' => $tmpFile), 'com_media'))
+		if (!$helper->canUpload(array('name' => $name, 'size' => count($mediaContent), 'tmp_name' => $tmpFile), 'com_media'))
 		{
 			JFile::delete($tmpFile);
 
